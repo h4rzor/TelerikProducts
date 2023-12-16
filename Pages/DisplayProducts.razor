@@ -1,0 +1,153 @@
+﻿@using Telerik.DataSource;
+@page "/displayproducts"
+@using Telerik.Blazor;
+
+<TelerikGrid Class="grid"
+             Data="@products"
+             Sortable="true"
+             Pageable="true"
+             FilterMode="GridFilterMode.FilterMenu"
+             EditMode="GridEditMode.Popup">
+    <GridColumns>
+        <GridColumn Field="@nameof(Product.ProductId)"
+                    Title="Id"></GridColumn>
+
+        <GridColumn Field="@nameof(Product.ImgUrl)" Title="Image"
+                    Filterable="false">
+            <Template>
+                @{
+
+                    var product = context as Product;
+                    var imgUrl = product.ImgUrl;
+
+                    <img src="@imgUrl" alt="Product Image" style="width: 100px; height: 100px;" />
+                }
+            </Template>
+        </GridColumn>
+
+        <GridColumn Field="@nameof(Product.ProductName)"
+                    Title="Name"></GridColumn>
+
+        <GridColumn Field="@nameof(Product.UnitPrice)"
+                    Title="Price">
+            <Template>
+                @((context as Product).UnitPrice.ToString("C2"))
+            </Template>
+        </GridColumn>
+        <GridColumn Field="@nameof(Product.Rating)"
+                    Title="Rating">
+            <Template>
+                @{
+                    var product = context as Product;
+
+                    var color = CalculateColor(product.Rating);
+
+                    <div style="background-color: @color; padding: 5px; border-radius: 3px; color: white; text-align: center;">
+                        @product.Rating
+                    </div>
+                }
+            </Template>
+        </GridColumn>
+
+        <GridColumn Field="@nameof(Product.DeliveryOn)"
+                    Title="Delivery On"></GridColumn>
+
+
+        <GridColumn Field="@nameof(Product.UnitInStock)"
+                    Title="In Stock"
+                    Filterable="false">
+            <Template>
+                @{
+                    var product = context as Product;
+                    int quantity = product.UnitInStock;
+
+                    if (quantity < 5)
+                    {
+                        <span style="color: red">Restock</span>
+                    }
+                    else
+                    {
+                        <span style="color: green">In Stock</span>
+                    }
+                }
+            </Template>
+        </GridColumn>
+
+        <GridColumn Field="@nameof(Product.UnitInStock)"
+                    Title="Quantity">
+            <Template>
+                @{
+                    var product = context as Product;
+                    var value = product?.UnitInStock;
+                }
+                <TelerikProgressBar Class="width-100" Max="125" Value="(double)value">
+                    <ProgressBarLabel Visible="true" Position="@ProgressBarLabelPosition.Center">
+                        <Template Context="progressBarContext">
+                            @if (value > 125)
+                            {
+                                <span style="font-weight:bold">Over 125 in stock</span>
+                            }
+                            else
+                            {
+                                <span>In stock:<span style="font-weight:bold">@(progressBarContext.Value)</span></span>
+                            }
+                        </Template>
+                    </ProgressBarLabel>
+                </TelerikProgressBar>
+            </Template>
+        </GridColumn>
+    </GridColumns>
+</TelerikGrid>
+
+
+@code {
+    public class Product
+    {
+        public int ProductId { get; set; }
+
+        public string ProductName { get; set; }
+
+        public decimal UnitPrice { get; set; }
+
+        public int UnitInStock { get; set; }
+
+        public DateTime DeliveryOn { get; set; }
+
+        public int Rating { get; set; }
+
+        public string ImgUrl { get; set; }
+    }
+
+    public List<Product> Products { get; set; }
+
+
+    public List<Product> products { get; set; } = new List<Product>()
+    {
+        new Product() { ProductId = 1, ProductName = "Chai", UnitInStock = 18, UnitPrice = 10.5m, DeliveryOn = new DateTime(2020, 12, 11), Rating=67, ImgUrl="https://boydhampers.com/cdn/shop/articles/tea-poured-into-cup.jpg?v=1695060368" },
+        new Product() { ProductId = 2, ProductName = "Chang", UnitInStock = 4, UnitPrice = 13m, DeliveryOn = new DateTime(2020, 12, 11), Rating=86,ImgUrl="https://scontent-otp1-1.xx.fbcdn.net/v/t39.30808-6/278109309_4879699022146874_8961564847167975611_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=230a55&_nc_ohc=JtUYxTidpDcAX-qQE29&_nc_ht=scontent-otp1-1.xx&oh=00_AfBXMQ6gl-7T9S256-sWVPnjnRpp1KIA5DhiyafPAaLHPA&oe=6580CB21" },
+        new Product() { ProductId = 3, ProductName = "Aniseed Syrup", UnitInStock = 1, UnitPrice = 6m, DeliveryOn = new DateTime(2020, 12, 11), Rating=10,ImgUrl="https://cdn.diffords.com/contrib/bws/2018/11/5bf2901108e6c.jpg" },
+        new Product() { ProductId = 4, ProductName = "Chef Anton's Cajun Seasoning", UnitInStock = 10, UnitPrice = 11.2m, DeliveryOn = new DateTime(2020, 11, 13),Rating=21, ImgUrl="https://tones.com/wp-content/uploads/product-00041351517267.png" },
+        new Product() { ProductId = 5, ProductName = "Chef Anton's Gumbo Mix", UnitInStock = 0, UnitPrice = 33m, DeliveryOn = new DateTime(2020, 11, 13), Rating=50, ImgUrl="https://www.tonychachere.com/wp-content/uploads/2020/10/Gumbo-Base-Mix-website.jpg" },
+        new Product() { ProductId = 6, ProductName = "Grandma's Boysenberry Spread", UnitInStock = 5, UnitPrice = 22m, DeliveryOn = new DateTime(2020, 11, 13), Rating=33,ImgUrl="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQCWEGb7uSqrAHukLF6blyq0WKSFjktx9ddzd3Z3_4eQ&s" },
+        new Product() { ProductId = 7, ProductName = "Uncle Bob's Organic Dried Pears", UnitInStock = 22, UnitPrice = 18.9m, DeliveryOn = new DateTime(2020, 11, 13), Rating=51, ImgUrl="https://images-cdn.ubuy.co.id/635e365f6315b77caa23ae49-bella-viva-orchards-organic-dried-pears.jpg" },
+        new Product() { ProductId = 8, ProductName = "Northwoods Cranberry Sauce", UnitInStock = 3, UnitPrice = 15m, DeliveryOn = new DateTime(2020, 11, 22), Rating=44, ImgUrl="https://c8.alamy.com/comp/CPDCCA/jar-of-ocean-spray-cranberry-sauce-isolated-on-white-with-soft-shadow-CPDCCA.jpg" },
+        new Product() { ProductId = 9, ProductName = "Mishi Kobe Niku", UnitInStock = 0, UnitPrice = 21m, DeliveryOn = new DateTime(2020, 11, 22), Rating=86, ImgUrl="https://www.idelish.com/wp-content/uploads/DSC_5529_filtered-L.jpg" },
+        new Product() { ProductId = 10, ProductName = "Ikura", UnitInStock = 13, UnitPrice = 8m, DeliveryOn = new DateTime(2020, 11, 22), Rating=44, ImgUrl="https://whitefinmarket.com/cdn/shop/products/pixta_ikuradon@2x.jpg?v=1667509006" },
+        new Product() { ProductId = 11, ProductName="Cheese", UnitInStock = 20, UnitPrice = 3m, DeliveryOn = new DateTime(2023, 11, 16), Rating=90, ImgUrl="https://www.shutterstock.com/image-photo/piece-cheese-isolated-on-white-600nw-1416372146.jpg"},
+        new Product() { ProductId = 12, ProductName="Olive oil", UnitInStock = 2, UnitPrice = 5m, DeliveryOn = new DateTime(2024, 10, 1), Rating=45, ImgUrl="https://target.scene7.com/is/image/Target/GUEST_0ba311bb-e3e5-435f-9257-b7f05a501b99?wid=488&hei=488&fmt=pjpeg"},
+        new Product() { ProductId = 13, ProductName="Chocolate", UnitInStock = 200, UnitPrice=2m, DeliveryOn = new DateTime(2022, 1, 1), Rating=56, ImgUrl="https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Milka_Alpine_Milk_Chocolate_bar_100g_with_chunks_broken_off.jpg/1200px-Milka_Alpine_Milk_Chocolate_bar_100g_with_chunks_broken_off.jpg"},
+        new Product() { ProductId = 14, ProductName="Milk", UnitInStock = 100, UnitPrice = 2m, DeliveryOn = new DateTime(2023, 5, 6), Rating=80, ImgUrl="https://images.immediate.co.uk/production/volatile/sites/30/2020/02/Glass-and-bottle-of-milk-fe0997a.jpg?quality=90&resize=556,505"},
+        new Product() { ProductId = 15, ProductName="Coffee", UnitInStock = 50, UnitPrice = 1m, DeliveryOn = new DateTime(2023, 3, 2), Rating=100, ImgUrl="https://neurosciencenews.com/files/2023/06/coffee-brain-caffeine-neuroscincces.jpg"}
+    };
+
+    private string CalculateColor(int value)
+    {
+        int red = (int)(255 * (1 - (value / 100.0)));
+        int green = (int)(255 * (value / 100.0));
+        int blue = 0;
+
+        string result = "rgb(" + red + "," + green + "," + blue + ")";
+
+        return result;
+    }
+}
